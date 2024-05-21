@@ -18,6 +18,11 @@ RUN git clone https://github.com/EVerest/everest-core.git \
         # Don't run the test-and-install script since it deletes the build directory!
         && /entrypoint.sh run-script install
 
+
+#Install sqlite to interact with the device model directly inside the docker container
+RUN apk update && \
+    apk add --no-cache sqlite
+
 #Add lightweight python server to serve ocpp logs formatted as html files
 RUN for file in /workspace/build/run-scripts/run-sil*; do \
         echo "python3 -m http.server 9000 --directory /tmp/everest_ocpp_logs &" > temp_file.sh && \
@@ -29,7 +34,7 @@ RUN for file in /workspace/build/run-scripts/run-sil*; do \
 # Copy over the custom config *after* compilation and installation
 COPY config-docker.json ./dist/share/everest/modules/OCPP/config-docker.json
 COPY config.json ./dist/share/everest/modules/OCPP201/config.json
-COPY device_model_storage_maeve_sp1.db ./dist/share/everest/modules/OCPP201/device_model_storage.db
+COPY device_model_storage_sp1.db ./dist/share/everest/modules/OCPP201/device_model_storage.db
 
 # TODO: This should be removed once added to everest-core
 COPY ./tests/startup_tests.py /ext/source/tests/core_tests/startup_tests.py

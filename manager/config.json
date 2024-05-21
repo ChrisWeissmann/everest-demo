@@ -209,7 +209,7 @@
             "NetworkConnectionProfiles": {
                 "variable_name": "NetworkConnectionProfiles",
                 "attributes": {
-                    "Actual": "[{\"configurationSlot\": 1, \"connectionData\": {\"messageTimeout\": 30, \"ocppCsmsUrl\": \"ws://host.docker.internal/ws/cp001\", \"ocppInterface\": \"Wired0\", \"ocppTransport\": \"JSON\", \"ocppVersion\": \"OCPP20\", \"securityProfile\": 1}}]"
+                    "Actual": "[{\"configurationSlot\": 1, \"connectionData\": {\"messageTimeout\": 30, \"ocppCsmsUrl\": \"ws://host.docker.internal:8082/cp001\", \"ocppInterface\": \"Wired0\", \"ocppTransport\": \"JSON\", \"ocppVersion\": \"OCPP20\", \"securityProfile\": 1}},{\"configurationSlot\": 2, \"connectionData\": {\"messageTimeout\": 30, \"ocppCsmsUrl\": \"ws://host.docker.internal/ws/cp001\", \"ocppInterface\": \"Wired0\", \"ocppTransport\": \"JSON\", \"ocppVersion\": \"OCPP20\", \"securityProfile\": 1}}]"
                 }
             },
             "ChargeBoxSerialNumber": {
@@ -313,7 +313,7 @@
             "NetworkConfigurationPriority": {
                 "variable_name": "NetworkConfigurationPriority",
                 "attributes": {
-                    "Actual": "1"
+                    "Actual": "1,2"
                 }
             },
             "NetworkProfileConnectionAttempts": {
