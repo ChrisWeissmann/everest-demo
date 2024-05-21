@@ -16,13 +16,6 @@ if [[ ! "${DEMO_DIR}" || ! -d "${DEMO_DIR}" ]]; then
     exit 1
 fi
 
-#TODO remove below after initial commit
-mkdir -p "${DEMO_DIR}/citrineos"
-cp ./citrineos/docker-compose.yml "${DEMO_DIR}/citrineos/"
-cp ./citrineos/directus-env-config.cjs "${DEMO_DIR}/citrineos/"
-cp "./${DEMO_COMPOSE_FILE_NAME}" "${DEMO_DIR}/"
-cp "./citrineos/init.sh" "${DEMO_DIR}/citrineos"
-cp "./citrineos/.env" "${DEMO_DIR}/citrineos"
 cd "${DEMO_DIR}" || exit 1
 
 echo "Cloning EVerest from ${DEMO_REPO} into ${DEMO_DIR}/everest-demo"
@@ -31,7 +24,7 @@ if ! git clone --branch "${DEMO_BRANCH}" "${DEMO_REPO}" everest-demo; then
     exit 1
 fi
 
-cp "${DEMO_COMPOSE_FILE_NAME}" "everest-demo/${DEMO_COMPOSE_FILE_NAME}"
+cd everest-demo || exit 1
 
 
 # Start CitrineOS
@@ -46,8 +39,6 @@ fi
 
 popd || exit 1
 
-
-pushd everest-demo || exit 1
 echo "Starting the EVerest file is ${DEMO_DIR}/${DEMO_COMPOSE_FILE_NAME}"
 if ! docker compose --project-name everest-ac-demo \
                --file "${DEMO_COMPOSE_FILE_NAME}" up -d --wait; then

@@ -64,6 +64,7 @@ add_location() {
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer ${token}" \
         -d '{
+            "id": "2",
             "name": "New EVerst",
             "coordinates": {
                 "type": "Point",

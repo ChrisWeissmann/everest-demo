@@ -1,12 +1,12 @@
 services:
   mqtt-server:
-    image: ghcr.io/everest/everest-demo/mqtt-server:${TAG}
+    image: ghcr.io/everest/everest-demo/mqtt-server:${EVEREST_DEMO_TAG}
     platform: linux/x86_64
     logging:
       driver: none
 
   manager:
-    image: ghcr.io/chrisweissmann/everest-demo//manager:${TAG}
+    image: ghcr.io/chrisweissmann/manager:${TAG}
     platform: linux/x86_64
     deploy:
       resources:
@@ -26,7 +26,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   nodered:
-    image: ghcr.io/everest/everest-demo/nodered:${TAG}
+    image: ghcr.io/everest/everest-demo/nodered:${EVEREST_DEMO_TAG}
     depends_on:
       - mqtt-server
     ports:
