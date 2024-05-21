@@ -73,6 +73,7 @@ add_location() {
         }' | tee /dev/tty && echo)
 
     local location_id=$(jq -r '.data.id' <<< "$response")
+    echo "$location_id"
 }
 
 # Function to add a charging station
