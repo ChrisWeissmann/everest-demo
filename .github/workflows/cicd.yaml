@@ -21,15 +21,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - host_namespace: ghcr.io/everest/everest-demo
+          - host_namespace: ghcr.io/chrisweissmann
             image_name: manager
             context: ./manager
-          - host_namespace: ghcr.io/everest/everest-demo
-            image_name: mqtt-server
-            context: ./mosquitto
-          - host_namespace: ghcr.io/everest/everest-demo
-            image_name: nodered
-            context: ./nodered
 
     steps:
       - name: Checkout
@@ -41,7 +35,7 @@ jobs:
         id: docker-image-version-check
         shell: bash
         run: |
-          if ! [[ -s '.env'  ]]; then
+          if ! [[ -s '.env' ]]; then
             echo 'Error: No .env file found.'
             exit 1
           fi
