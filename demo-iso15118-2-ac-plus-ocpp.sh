@@ -100,88 +100,88 @@ cd "${DEMO_DIR}" || exit 1
 echo "Cloning EVerest from ${DEMO_REPO} into ${DEMO_DIR}/everest-demo"
 git clone --branch "${DEMO_BRANCH}" "${DEMO_REPO}" everest-demo
 
-if [[ "$DEMO_VERSION" != v1.6j  && "$DEMO_CSMS" == meave ]]; then
-  echo "Cloning MaEVe CSMS from ${MAEVE_REPO} into ${DEMO_DIR}/maeve-csms and starting it"
-  git clone ${MAEVE_REPO} maeve-csms
+# if [[ "$DEMO_VERSION" != v1.6j  && "$DEMO_CSMS" == meave ]]; then
+#   echo "Cloning MaEVe CSMS from ${MAEVE_REPO} into ${DEMO_DIR}/maeve-csms and starting it"
+#   git clone ${MAEVE_REPO} maeve-csms
 
-  pushd maeve-csms || exit 1
+#   pushd maeve-csms || exit 1
 
-  git reset --hard ${MAEVE_BRANCH}
-  cp ../everest-demo/manager/cached_certs_correct_name_emaid.tar.gz .
+#   git reset --hard ${MAEVE_BRANCH}
+#   cp ../everest-demo/manager/cached_certs_correct_name_emaid.tar.gz .
 
-  echo "Patching the CSMS to disable load balancer"
-  patch -p1 -i ../everest-demo/maeve/maeve-csms-no-lb.patch
+#   echo "Patching the CSMS to disable load balancer"
+#   patch -p1 -i ../everest-demo/maeve/maeve-csms-no-lb.patch
 
-  if [[ "$DEMO_VERSION" =~ sp2 || "$DEMO_VERSION" =~ sp3 ]]; then
-    echo "Copying certs into ${DEMO_DIR}/maeve-csms/config/certificates"
-    tar xf cached_certs_correct_name_emaid.tar.gz
-    cat dist/etc/everest/certs/client/csms/CSMS_LEAF.pem \
-        dist/etc/everest/certs/ca/csms/CPO_SUB_CA2.pem \
-        dist/etc/everest/certs/ca/csms/CPO_SUB_CA1.pem \
-      > config/certificates/csms.pem
-    cat dist/etc/everest/certs/ca/csms/CPO_SUB_CA2.pem \
-        dist/etc/everest/certs/ca/csms/CPO_SUB_CA1.pem \
-      > config/certificates/trust.pem
-    cp dist/etc/everest/certs/client/csms/CSMS_LEAF.key config/certificates/csms.key
-    cp dist/etc/everest/certs/ca/v2g/V2G_ROOT_CA.pem config/certificates/root-V2G-cert.pem
-    cp dist/etc/everest/certs/ca/mo/MO_ROOT_CA.pem config/certificates/root-MO-cert.pem
+#   if [[ "$DEMO_VERSION" =~ sp2 || "$DEMO_VERSION" =~ sp3 ]]; then
+#     echo "Copying certs into ${DEMO_DIR}/maeve-csms/config/certificates"
+#     tar xf cached_certs_correct_name_emaid.tar.gz
+#     cat dist/etc/everest/certs/client/csms/CSMS_LEAF.pem \
+#         dist/etc/everest/certs/ca/csms/CPO_SUB_CA2.pem \
+#         dist/etc/everest/certs/ca/csms/CPO_SUB_CA1.pem \
+#       > config/certificates/csms.pem
+#     cat dist/etc/everest/certs/ca/csms/CPO_SUB_CA2.pem \
+#         dist/etc/everest/certs/ca/csms/CPO_SUB_CA1.pem \
+#       > config/certificates/trust.pem
+#     cp dist/etc/everest/certs/client/csms/CSMS_LEAF.key config/certificates/csms.key
+#     cp dist/etc/everest/certs/ca/v2g/V2G_ROOT_CA.pem config/certificates/root-V2G-cert.pem
+#     cp dist/etc/everest/certs/ca/mo/MO_ROOT_CA.pem config/certificates/root-MO-cert.pem
 
-    echo "Validating that the certificates are set up correctly"
-    openssl verify -show_chain \
-      -CAfile config/certificates/root-V2G-cert.pem \
-      -untrusted config/certificates/trust.pem \
-      config/certificates/csms.pem
+#     echo "Validating that the certificates are set up correctly"
+#     openssl verify -show_chain \
+#       -CAfile config/certificates/root-V2G-cert.pem \
+#       -untrusted config/certificates/trust.pem \
+#       config/certificates/csms.pem
 
-    echo "Patching the CSMS to enable EVerest organization"
-    patch -p1 -i ../everest-demo/maeve/maeve-csms-everest-org.patch
+#     echo "Patching the CSMS to enable EVerest organization"
+#     patch -p1 -i ../everest-demo/maeve/maeve-csms-everest-org.patch
     
-    echo "Patching the CSMS to enable local mo root"
-    patch -p1 -i ../everest-demo/maeve/maeve-csms-local-mo-root.patch
+#     echo "Patching the CSMS to enable local mo root"
+#     patch -p1 -i ../everest-demo/maeve/maeve-csms-local-mo-root.patch
     
-    echo "Patching the CSMS to enable local mo root"
-    patch -p1 -i ../everest-demo/maeve/maeve-csms-ignore-ocsp.patch
-  else
-    echo "Patching the CSMS to disable WSS"
-    patch -p1 -i ../everest-demo/maeve/maeve-csms-no-wss.patch
-  fi
+#     echo "Patching the CSMS to enable local mo root"
+#     patch -p1 -i ../everest-demo/maeve/maeve-csms-ignore-ocsp.patch
+#   else
+#     echo "Patching the CSMS to disable WSS"
+#     patch -p1 -i ../everest-demo/maeve/maeve-csms-no-wss.patch
+#   fi
 
-  echo "Starting the MaEVe CSMS"
-  docker compose up -d
+#   echo "Starting the MaEVe CSMS"
+#   docker compose up -d
 
-  echo "Waiting 5s for MaEVe CSMS to start..."
-  sleep 5
+#   echo "Waiting 5s for MaEVe CSMS to start..."
+#   sleep 5
 
-  if [[ "$DEMO_VERSION" =~ sp1 ]]; then
-    echo "MaEVe CSMS started, adding charge station with Security Profile 1 (note: profiles in MaEVe start with 0 so SP-0 == OCPP SP-1)"
-    curl http://localhost:9410/api/v0/cs/cp001 -H 'content-type: application/json' \
-      -d '{"securityProfile": 0, "base64SHA256Password": "3oGi4B5I+Y9iEkYtL7xvuUxrvGOXM/X2LQrsCwf/knA="}'
-  elif [[ "$DEMO_VERSION" =~ sp2 ]]; then
-    echo "MaEVe CSMS started, adding charge station with Security Profile 2 (note: profiles in MaEVe start with 0 so SP-1 == OCPP SP-2)"
-    curl http://localhost:9410/api/v0/cs/cp001 -H 'content-type: application/json' \
-      -d '{"securityProfile": 1, "base64SHA256Password": "3oGi4B5I+Y9iEkYtL7xvuUxrvGOXM/X2LQrsCwf/knA="}'
-  elif [[ "$DEMO_VERSION" =~ sp3 ]]; then
-    echo "MaEVe CSMS started, adding charge station with Security Profile 3 (note: profiles in MaEVe start with 0 so SP-2 == OCPP SP-3)"
-    curl http://localhost:9410/api/v0/cs/cp001 -H 'content-type: application/json' -d '{"securityProfile": 2}'
-  fi
+#   if [[ "$DEMO_VERSION" =~ sp1 ]]; then
+#     echo "MaEVe CSMS started, adding charge station with Security Profile 1 (note: profiles in MaEVe start with 0 so SP-0 == OCPP SP-1)"
+#     curl http://localhost:9410/api/v0/cs/cp001 -H 'content-type: application/json' \
+#       -d '{"securityProfile": 0, "base64SHA256Password": "3oGi4B5I+Y9iEkYtL7xvuUxrvGOXM/X2LQrsCwf/knA="}'
+#   elif [[ "$DEMO_VERSION" =~ sp2 ]]; then
+#     echo "MaEVe CSMS started, adding charge station with Security Profile 2 (note: profiles in MaEVe start with 0 so SP-1 == OCPP SP-2)"
+#     curl http://localhost:9410/api/v0/cs/cp001 -H 'content-type: application/json' \
+#       -d '{"securityProfile": 1, "base64SHA256Password": "3oGi4B5I+Y9iEkYtL7xvuUxrvGOXM/X2LQrsCwf/knA="}'
+#   elif [[ "$DEMO_VERSION" =~ sp3 ]]; then
+#     echo "MaEVe CSMS started, adding charge station with Security Profile 3 (note: profiles in MaEVe start with 0 so SP-2 == OCPP SP-3)"
+#     curl http://localhost:9410/api/v0/cs/cp001 -H 'content-type: application/json' -d '{"securityProfile": 2}'
+#   fi
 
-  echo "Charge station added, adding user token"
+#   echo "Charge station added, adding user token"
 
-  curl http://localhost:9410/api/v0/token -H 'content-type: application/json' -d '{
-    "countryCode": "GB",
-    "partyId": "TWK",
-    "type": "RFID",
-    "uid": "DEADBEEF",
-    "contractId": "GBTWK012345678V",
-    "issuer": "Thoughtworks",
-    "valid": true,
-    "cacheMode": "ALWAYS"
-  }'
+#   curl http://localhost:9410/api/v0/token -H 'content-type: application/json' -d '{
+#     "countryCode": "GB",
+#     "partyId": "TWK",
+#     "type": "RFID",
+#     "uid": "DEADBEEF",
+#     "contractId": "GBTWK012345678V",
+#     "issuer": "Thoughtworks",
+#     "valid": true,
+#     "cacheMode": "ALWAYS"
+#   }'
 
-  curl http://localhost:9410/api/v0/token -H 'content-type: application/json' -d '{"countryCode": "UK", "partyId": "Switch", "contractId": "UKSWI123456789G", "uid": "UKSWI123456789G", "issuer": "Switch", "valid": true, "cacheMode": "ALWAYS"}'
-  echo "User token added, starting EVerest..."
+#   curl http://localhost:9410/api/v0/token -H 'content-type: application/json' -d '{"countryCode": "UK", "partyId": "Switch", "contractId": "UKSWI123456789G", "uid": "UKSWI123456789G", "issuer": "Switch", "valid": true, "cacheMode": "ALWAYS"}'
+#   echo "User token added, starting EVerest..."
 
-  popd || exit 1
-fi
+#   popd || exit 1
+# fi
 
 if [[ "$DEMO_VERSION" != v1.6j  && "$DEMO_CSMS" == 'citrineos' ]]; then
   echo "Cloning CitrineOS CSMS from ${CITRINEOS_REPO} into ${DEMO_DIR}/citrineos-csms and starting it"
